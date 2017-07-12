@@ -246,20 +246,31 @@ def main():
                         "arguments": module.params['arguments']
                     })
                 )
+            if r.status_code == 201:
+                module.exit_json(
+                    changed = True,
+                    name = module.params['name']
+                )
+            else:
+                module.fail_json(
+                    msg = "Error creating queue",
+                    status = r.status_code,
+                    details = r.text
+                )
         elif module.params['state'] == 'absent':
             r = requests.delete( url, auth = (module.params['login_user'],module.params['login_password']))
 
-        if r.status_code == 204:
-            module.exit_json(
-                changed = True,
-                name = module.params['name']
-            )
-        else:
-            module.fail_json(
-                msg = "Error creating queue",
-                status = r.status_code,
-                details = r.text
-            )
+            if r.status_code == 204:
+                module.exit_json(
+                    changed = True,
+                    name = module.params['name']
+                )
+            else:
+                module.fail_json(
+                    msg = "Error deleting queue",
+                    status = r.status_code,
+                    details = r.text
+                )
 
     else:
         module.exit_json(
